@@ -23,8 +23,9 @@ export const useDragOverlay = (videoContainerRef) => {
     const updatedOverlay = {
       ...state.dragOverlay,
       position: {
-        x: Math.max(0, Math.min(x, containerRect.width - state.dragOverlay.size.width)),
-        y: Math.max(0, Math.min(y, containerRect.height - state.dragOverlay.size.height))
+        // Remove the constraints to allow positioning anywhere
+        x: x,
+        y: y
       }
     };
     

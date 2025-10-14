@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Play, Pause, Volume2, VolumeX, Settings } from 'lucide-react';
 import { useStream } from '../context/StreamContext.jsx';
 
@@ -6,15 +6,37 @@ const VideoControls = () => {
   const { state, actions } = useStream();
 
   const togglePlay = () => {
+    // Find the video element and control it directly
+    const videoElement = document.querySelector('video');
+    if (videoElement) {
+      if (state.isPlaying) {
+        videoElement.pause();
+      } else {
+        videoElement.play().catch(console.error);
+      }
+    }
+    // Update state after controlling the video
     actions.setIsPlaying(!state.isPlaying);
   };
 
   const toggleMute = () => {
+    // Find the video element and control it directly
+    const videoElement = document.querySelector('video');
+    if (videoElement) {
+      videoElement.muted = !state.isMuted;
+    }
+    // Update state after controlling the video
     actions.setIsMuted(!state.isMuted);
   };
 
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
+    // Find the video element and control it directly
+    const videoElement = document.querySelector('video');
+    if (videoElement) {
+      videoElement.volume = newVolume;
+    }
+    // Update state after controlling the video
     actions.setVolume(newVolume);
   };
 

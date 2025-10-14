@@ -11,20 +11,27 @@ const streamVideo = (req, res) => {
     return res.status(400).json({ error: 'Stream URL is required' });
   }
   
+  // Set proper headers for MP4 streaming
   res.writeHead(200, {
-    'Content-Type': 'video/mp2t',
-    'Transfer-Encoding': 'chunked'
+    'Content-Type': 'video/mp4',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Range',
+    'Cache-Control': 'no-cache',
+    'Accept-Ranges': 'bytes'
   });
   
-  // FFmpeg command to convert stream to HTTP
+  // FFmpeg command for MP4 output (single file stream)
   const ffmpeg = spawn('ffmpeg', [
     '-i', streamUrl,
-    '-f', 'mpegts',
-    '-codec:v', 'mpeg1video',
-    '-codec:a', 'mp2',
-    '-b:v', '1000k',
-    '-bf', '0',
-    '-muxdelay', '0.001',
+    '-c:v', 'libx264',           // H.264 video codec
+    '-c:a', 'aac',               // AAC audio codec
+    '-f', 'mp4',                 // MP4 format
+    '-movflags', 'frag_keyframe+empty_moov+default_base_moof', // Enable streaming
+    '-preset', 'ultrafast',      // Fast encoding
+    '-tune', 'zerolatency',      // Low latency
+    '-crf', '23',                // Quality setting
+    '-maxrate', '1000k',         // Max bitrate
+    '-bufsize', '2000k',         // Buffer size
     'pipe:1'
   ]);
   
@@ -57,6 +64,4 @@ const streamVideo = (req, res) => {
   });
 };
 
-module.exports = {
-  streamVideo
-};
+module.exports = { streamVideo };

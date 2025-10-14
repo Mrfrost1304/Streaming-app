@@ -12,27 +12,42 @@ const VideoPlayer = () => {
     }
   }, [state.volume, state.isMuted]);
 
-  const togglePlay = () => {
-    if (videoRef.current) {
-      if (state.isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
+  const handleVideoError = (e) => {
+    console.error('Video error:', e);
+    const error = videoRef.current?.error;
+    let errorMessage = 'Failed to load video stream.';
+    
+    if (error) {
+      switch (error.code) {
+        case error.MEDIA_ERR_ABORTED:
+          errorMessage = 'Video loading was aborted.';
+          break;
+        case error.MEDIA_ERR_NETWORK:
+          errorMessage = 'Network error occurred while loading video.';
+          break;
+        case error.MEDIA_ERR_DECODE:
+          errorMessage = 'Video decoding error occurred.';
+          break;
+        case error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+          errorMessage = 'Video format not supported. Please check the RTSP URL.';
+          break;
+        default:
+          errorMessage = 'Unknown video error occurred.';
       }
-      actions.setIsPlaying(!state.isPlaying);
     }
+    
+    actions.setError(errorMessage);
+    console.error('Video error details:', errorMessage);
   };
 
-  const toggleMute = () => {
-    if (videoRef.current) {
-      videoRef.current.muted = !state.isMuted;
-      actions.setIsMuted(!state.isMuted);
-    }
+  const handleLoadStart = () => {
+    console.log('Video loading started');
+    actions.setLoading(true);
   };
 
-  const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value);
-    actions.setVolume(newVolume);
+  const handleCanPlay = () => {
+    console.log('Video can start playing');
+    actions.setLoading(false);
   };
 
   return (
@@ -41,10 +56,12 @@ const VideoPlayer = () => {
       className="w-full h-full object-cover"
       src={state.streamUrl}
       autoPlay
-      onError={(e) => {
-        console.error('Video error:', e);
-        alert('Failed to load video stream. Please check the RTSP URL.');
-      }}
+      playsInline
+      muted={state.isMuted}
+      crossOrigin="anonymous"
+      onError={handleVideoError}
+      onLoadStart={handleLoadStart}
+      onCanPlay={handleCanPlay}
       onPlay={() => actions.setIsPlaying(true)}
       onPause={() => actions.setIsPlaying(false)}
     />

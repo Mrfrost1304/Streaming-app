@@ -4,7 +4,9 @@ import { Move } from 'lucide-react';
 const Overlay = ({ overlay, isSelected, isDragging, onMouseDown, onClick }) => {
   return (
     <div
-      className={`absolute cursor-move transition-all duration-200 ${
+      className={`absolute cursor-move ${
+        isDragging ? '' : 'transition-all duration-200'
+      } ${
         isSelected ? 'ring-2 ring-purple-400 ring-opacity-50' : ''
       } ${isDragging ? 'z-50 scale-105' : 'z-10'}`}
       style={{
@@ -19,7 +21,10 @@ const Overlay = ({ overlay, isSelected, isDragging, onMouseDown, onClick }) => {
         borderRadius: '12px',
         padding: '12px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-        backdropFilter: 'blur(10px)'
+        backdropFilter: 'blur(10px)',
+        // Enable hardware acceleration
+        transform: 'translate3d(0, 0, 0)',
+        willChange: isDragging ? 'transform' : 'auto'
       }}
       onMouseDown={(e) => onMouseDown(e, overlay)}
       onClick={() => onClick(overlay._id)}
